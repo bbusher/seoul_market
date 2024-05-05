@@ -87,108 +87,86 @@ $(document).ready(function() {
 
 // 초기 데이터 로딩 시 로더 표시
 $(document).ready(function() {
-    var vilage_base_url = "/base-url"; // 백엔드로의 요청으로 수정
+    var vilage_base_url = "https://yczemtfqpyqbbw32mt4xm2gt7q0paxjx.lambda-url.us-east-1.on.aws/base-url"; // 백엔드로의 요청으로 수정
 
-    // 서버로부터 baseUrl 요청
-    $.ajax({
-        url: vilage_base_url,
-        type: 'GET',
-        success: function(data) {
-            var baseUrl = data.baseUrl;
-            loadData(baseUrl);
-        },
-        error: function(error) {
-            console.error('Error fetching base URL:', error);
-        }
-    });
+    // 서버로부터 데이터 로드
+    loadData(vilage_base_url);
 });
 
-
 function loadData(baseUrl) {
-    console.log(baseUrl)
 
     if (!baseUrl) {
         console.error('Base URL is missing');
         return;
     }
 
+    console.log(baseUrl);
+
     // 로딩 아이콘 및 메시지 표시
     $('#loader').show();
     $('#loadingMessage').show();
 
-    var batchUrls = [];
-
-    // 요청할 URL들을 생성
-    for (var i = 0; i < totalDataCount; i += batchSize) {
-        var url = baseUrl + (i + 1) + '/' + Math.min(i + batchSize, totalDataCount) + '/';
-        console.log("URL:", url); // 생성된 URL 콘솔에 출력
-        batchUrls.push(url);
-    }
-
-    var requestsCompleted = 0;
-
-    batchUrls.forEach(function(url) {
-        $.ajax({
-            url: url,
-            type: 'GET',
-            success: function(jsonData) {
-                processDataFromJSON(jsonData);
-                requestsCompleted++; // 요청 완료된 개수 증가
-                if (requestsCompleted === batchUrls.length) {
-                    // 모든 요청이 완료되면 데이터를 정렬하고 각 항목의 최저가를 표시
-                    displayLowestPrices();
-                    $('#loader').hide();
-                    $('#loadingMessage').hide();
-                }
-            },
-            error: function(error) {
-                console.error('Error fetching data:', error);
-            }
-        });
+    $.ajax({
+        url: baseUrl,
+        type: 'GET',
+        success: function(data) {
+            processDataFromJSON(data);
+            displayLowestPrices();
+            $('#loader').hide();
+            $('#loadingMessage').hide();
+        },
+        error: function(error) {
+            console.error('Error fetching data from server:', error);
+            $('#loader').hide();
+            $('#loadingMessage').hide();
+        }
     });
 }
 
 function processDataFromJSON(jsonData) {
     // Ensure jsonData is not empty or undefined
-    if (!jsonData || !jsonData.ListNecessariesPricesService || !jsonData.ListNecessariesPricesService.row) {
+    if (!jsonData || !Array.isArray(jsonData) || jsonData.length !== 5) {
         console.error('Invalid JSON data:', jsonData);
         return;
     }
 
-    var dataRows = jsonData.ListNecessariesPricesService.row;
-
-    // Initialize data object if not already initialized
-    if (!data) {
-        data = {};
-    }
-
-    // Process each row of data
-    dataRows.forEach(function(row) {
-        var yearMonth = row.P_YEAR_MONTH;
-        var itemName = row.A_NAME;
-        var itemPrice = parseFloat(row.A_PRICE);
-
-        // Check if the yearMonth is '2024-04' and the item is in the desired list
-        if (yearMonth === '2024-04' && (
-            itemName.includes('감자 1kg') ||
-            itemName.includes('대파 1kg') ||
-            itemName.includes('콩나물 500g') ||
-            itemName.includes('양파 1망') ||
-            itemName.includes('포도(샤인머스켓) 1kg') ||
-            itemName.includes('사과 1개') ||
-            itemName.includes('복숭아 1개') ||
-            itemName.includes('닭고기 1kg') ||
-            itemName.includes('돼지고기 100g') ||
-            itemName.includes('고등어 1마리'))) {
-
-            // Update data with the lowest price for each item
-            if (itemPrice !== 0 && (!data[itemName] || data[itemName].price > itemPrice)) {
-                data[itemName] = {
-                    market: row.M_NAME,
-                    price: itemPrice
-                };
-            }
+    // Process each batch of data
+    jsonData.forEach(function(batchData) {
+        if (!batchData.ListNecessariesPricesService || !batchData.ListNecessariesPricesService.row) {
+            console.error('Invalid batch data:', batchData);
+            return;
         }
+
+        var dataRows = batchData.ListNecessariesPricesService.row;
+
+        // Process each row of data
+        dataRows.forEach(function(row) {
+            var yearMonth = row.P_YEAR_MONTH;
+            var itemName = row.A_NAME;
+            var itemPrice = parseFloat(row.A_PRICE);
+
+            // Check if the yearMonth is '2024-04' and the item is in the desired list
+            if (yearMonth === '2024-04' && (
+                itemName.includes('감자 1kg') ||
+                itemName.includes('대파 1kg') ||
+                itemName.includes('콩나물 500g') ||
+                itemName.includes('양파 1망') ||
+                itemName.includes('포도(샤인머스켓) 1kg') ||
+                itemName.includes('사과 1개') ||
+                itemName.includes('복숭아 1개') ||
+                itemName.includes('닭고기 1kg') ||
+                itemName.includes('돼지고기 100g') ||
+                itemName.includes('고등어 1마리'))) {
+
+                // Update data with the lowest price for each item
+                if (itemPrice !== 0 && (!data[itemName] || data[itemName].price > itemPrice)) {
+                    data[itemName] = {
+                        market: row.M_NAME,
+                        price: itemPrice
+                    };
+                }
+            }
+        });
     });
 }
 
@@ -207,7 +185,3 @@ function displayLowestPrices() {
 
     document.getElementById('dataDisplay').innerHTML = dataDisplayHTML;
 }
-
-// 초기 데이터 로딩
-loadData();
-

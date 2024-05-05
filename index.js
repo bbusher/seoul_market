@@ -51,14 +51,26 @@ app.get('/weather', cors(corsOptions), async (req, res) => {
 });
 
 
-// 백엔드 API 엔드포인트 - CORS 설정 추가
-app.get('/base-url', cors(corsOptions), (req, res) => {
+app.get('/base-url', cors(corsOptions), async (req, res) => {
     try {
-        const baseUrl = `http://openapi.seoul.go.kr:8088/6d4f457a686b776837306f79424b41/json/ListNecessariesPricesService/`;
-        res.json({ baseUrl });
+        const promises = [];
+        // 5번의 요청을 생성하여 각각의 요청에 대한 프로미스를 생성합니다.
+        for (let i = 0; i < 5; i++) {
+            const startIdx = i * 1000 + 1;
+            const endIdx = (i + 1) * 1000;
+            const url = `http://openapi.seoul.go.kr:8088/${apiKey}/json/ListNecessariesPricesService/${startIdx}/${endIdx}`;
+            promises.push(axios.get(url));
+        }
+
+        // 각각의 요청을 병렬로 실행하고 모든 응답을 기다립니다.
+        const responses = await Promise.all(promises);
+
+        // 응답 데이터를 클라이언트에게 전달합니다.
+        const responseData = responses.map(response => response.data);
+        res.json(responseData);
     } catch (error) {
-        console.error('Error fetching base URL:', error);
-        res.status(500).json({ error: 'Failed to fetch base URL' });
+        console.error('Error fetching data from the API:', error);
+        res.status(500).json({ error: 'Failed to fetch data from the API' });
     }
 });
 
@@ -73,7 +85,6 @@ app.get('/', (req, res) => {
 
 
 // 서버 시작
-
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
