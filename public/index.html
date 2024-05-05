@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <title>서울시 열린데이터 광장 OpenAPI 샘플(Javascript)</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="config/script.js" defer></script>
+    <script src="config/map.js" defer></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e2b3ded7c563c658e3617fc9853ebe42"></script>
+<body>
+    <header>
+        <h1 id="header"><a href="/">오늘시장탐방</a></h1>
+        <nav>
+            <ul>
+                <li><a href="menu1/">품목별 시장 시세 비교</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="Main">
+        <div id="left">
+            <div class="weather">
+                <p class="font" id="title">날씨 정보</p>
+                <p class="font" id="subtitle">장보러 가는 오늘의 날씨를 알려드려요 !</p>
+                <div class="outer-container_W">
+                        <!-- 로더를 여기에 추가 -->
+                        <div class="loader" id="weatherLoader" style="display: none;"></div>
+                        <div class="loading-message" id="loadingMessage1" style="display: none;">날씨 정보를 불러오고 있습니다 🌞</div>
+                        <div class="weather-disp"  id="weather-info">
+                            <!-- 여기에 날씨 정보를 표시할 영역 -->
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="first">
+                <p class="font" id="title">시장 먹거리 추천</p>
+                <p class="font" id="subtitle">이런 최저가 먹거리 어때요? (2024년 04월 기준)</p>
+                <div class="outer-container">
+                    <div class="loader" id="loader" style="display: none;"></div> <!-- 로딩 아이콘 -->
+                    <div class="loading-message" id="loadingMessage" style="display: none;">상품을 로딩중입니다. 잠시만 기다려주세요 ☺️</div>
+                    <div class="data-display" id="dataDisplay">
+                        <!-- 여기에 데이터를 표시할 영역 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id ="right">
+            <p class="font" id="title">서울 시장 탐방하기</p>
+            <p class="font" id="subtitle">지도로 먼저 가볼까요?</p>
+            <div id="map"></div>
+        </div>
+        
+    </div>
+</body>
+</html>
+

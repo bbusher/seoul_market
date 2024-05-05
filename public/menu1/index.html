@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <title>서울시 열린데이터 광장 OpenAPI 샘플(Javascript)</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1 id="header"><a href="/">오늘시장탐방</a></h1>
+        <nav>
+            <ul>
+                <li><a href="index.html" id="meun">품목별 시장 시세 비교</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div>
+        <h3>시세가 궁금한 상품을 검색하세요 !</h3>
+    </div>
+
+    <div class="block">
+        <div class="search">
+            <p class="anoun">분류를 선택하세요</p>
+            <select id="categorySelect" onchange="updateSubcategories()">
+                <option value="식재료 (채소)">식재료 (채소)</option>
+                <option value="식재료 (과일)">식재료 (과일)</option>
+                <option value="식재료 (육류)">식재료 (육류)</option>
+                <option value="식재료 (해산물)">식재료 (해산물)</option>
+                <option value="식재료 (가공식품)">식재료 (가공식품)</option>
+                <option value="식재료 (양념 및 조미료)">식재료 (양념 및 조미료)</option>
+                <option value="음료">음료</option>
+                <option value="기타 생활 용품">기타 생활 용품</option>
+            </select>
+        </div>
+
+        <div class="search">
+            <p class="anoun" >품목을 선택하세요</p>
+            <select id="itemSelect">
+                <!-- 중분류 옵션은 자바스크립트로 동적으로 추가됩니다 -->
+            </select>
+        </div>
+            <button onclick="loadData(document.getElementById('itemSelect').value)">검색</button>
+        
+    </div>
+    <div class="loader" id="loader" style="display: none"></div>
+    <div class="loading-message" id="loadingMessage" style="display: none">데이터를 불러오는 중... <br> 30초 정도 소요 됩니다 ! 조금만 기다려주세요 ☺️</div>
+
+    <div id="dataDisplay"></div>
+
+    <script src="../config/search.js"></script>
+</body>
+</html>
