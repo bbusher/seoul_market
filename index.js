@@ -5,10 +5,27 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+const apiKey = '6d4f457a686b776837306f79424b41';
+
+/*
+// API 키 설정
+const proxyOptions = {
+    target: 'http://openapi.seoul.go.kr:8088/', // 프록시할 대상 서버 주소
+    changeOrigin: true, // 대상 서버의 오리진을 변경
+    pathRewrite: {
+        '^/base-url': `/${apiKey}/json/ListNecessariesPricesService/` // 요청 URL 변경
+    }
+};
+
+
+app.use('/base-url', createProxyMiddleware(proxyOptions));
+*/
 
 app.use(bodyParser.json());
 
@@ -18,9 +35,6 @@ const corsOptions = {
   methods: 'GET', // GET 요청만 허용
 };
 app.use(cors(corsOptions));
-
-// API 키 설정
-const apiKey = '6d4f457a686b776837306f79424b41';
 
 // 백엔드 API 엔드포인트 - CORS 설정 추가
 app.get('/weather', cors(corsOptions), async (req, res) => {
@@ -36,20 +50,18 @@ app.get('/weather', cors(corsOptions), async (req, res) => {
     }
 });
 
-// generateUrls 엔드포인트 - batchUrls 생성하여 전송
-app.get('/generateUrls', (req, res) => {
-    const baseUrl = `http://openapi.seoul.go.kr:8088/${apiKey}/json/ListNecessariesPricesService/`;
-    const totalDataCount = 5000;
-    const batchSize = 1000;
-    const batchUrls = [];
 
-    for (let i = 0; i < totalDataCount; i += batchSize) {
-        const url = `${baseUrl}${i + 1}/${Math.min(i + batchSize, totalDataCount)}/`;
-        batchUrls.push(url);
+// 백엔드 API 엔드포인트 - CORS 설정 추가
+app.get('/base-url', cors(corsOptions), (req, res) => {
+    try {
+        const baseUrl = `http://openapi.seoul.go.kr:8088/6d4f457a686b776837306f79424b41/json/ListNecessariesPricesService/`;
+        res.json({ baseUrl });
+    } catch (error) {
+        console.error('Error fetching base URL:', error);
+        res.status(500).json({ error: 'Failed to fetch base URL' });
     }
-
-    res.json({ batchUrls });
 });
+
 
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname, 'public')));
@@ -59,10 +71,14 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+
 // 서버 시작
+
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+
 
 // Express 서버 열기
 //module.exports.handler = serverless(app);

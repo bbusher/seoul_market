@@ -87,7 +87,7 @@ $(document).ready(function() {
 
 // 초기 데이터 로딩 시 로더 표시
 $(document).ready(function() {
-    var vilage_base_url = "https://yczemtfqpyqbbw32mt4xm2gt7q0paxjx.lambda-url.us-east-1.on.aws/base-url"; // 백엔드로의 요청으로 수정
+    var vilage_base_url = "/base-url"; // 백엔드로의 요청으로 수정
 
     // 서버로부터 baseUrl 요청
     $.ajax({
@@ -105,14 +105,12 @@ $(document).ready(function() {
 
 
 function loadData(baseUrl) {
+    console.log(baseUrl)
 
     if (!baseUrl) {
         console.error('Base URL is missing');
         return;
     }
-
-    
-    console.log(baseUrl)
 
     // 로딩 아이콘 및 메시지 표시
     $('#loader').show();
